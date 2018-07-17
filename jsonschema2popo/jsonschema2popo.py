@@ -44,9 +44,10 @@ class JsonSchema2Popo:
         return list(deps)
 
     def process(self, json_schema):
-        for _obj_name, _obj in json_schema['definitions'].items():
-            model = self.definition_parser(_obj_name, _obj)
-            self.definitions.append(model)
+        if 'definitions' in json_schema:
+            for _obj_name, _obj in json_schema['definitions'].items():
+                model = self.definition_parser(_obj_name, _obj)
+                self.definitions.append(model)
 
         # topological oderd dependencies
         g = networkx.DiGraph()
@@ -95,7 +96,8 @@ class JsonSchema2Popo:
                 if 'format' in _prop:
                     _format = _prop['format']
                 if _type['type'] == list and 'items' in _prop and isinstance(_prop['items'], list):
-                    _format = _prop['items'][0]['format']
+                    if  'format' in _prop['items'][0]:
+                        _format = _prop['items'][0]['format']
 
                 prop = {
                     '_name': to_snake_case(_prop_name),
